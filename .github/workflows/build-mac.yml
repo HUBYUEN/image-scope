@@ -9,22 +9,19 @@ jobs:
   build:
     runs-on: macos-14
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # 强制使用 Node24，消除警告
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     steps:
-      - name: 拉取代码
-        uses: actions/checkout@v4
-
-      - name: 安装 Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: 安装项目依赖
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller pyqt5 pillow numpy opencv-python
 
-      - name: 编译 .app 程序
+      - name: Build app
         run: |
           pyinstaller --onefile --windowed \
             --name "ImageScope" \
@@ -32,13 +29,12 @@ jobs:
             --add-data "res:res" \
             main.py
 
-      - name: 压缩程序
+      - name: Zip
         run: |
           cd dist
           zip -r ImageScope-Mac-M1.zip ImageScope.app
 
-      - name: 上传成品
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: ImageScope-Mac-M1
           path: dist/ImageScope-Mac-M1.zip
